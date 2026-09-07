@@ -12,6 +12,8 @@
 
 <p align="center">
   <img src="public/icon.svg" alt="keydris-manufact-template" width="96" />
+  &nbsp;&nbsp;
+  <img src="public/keydris-logo.png" alt="Keydris" width="96" />
 </p>
 
 <p align="center">
