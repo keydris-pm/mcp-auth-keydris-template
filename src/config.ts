@@ -1,8 +1,12 @@
 export const config = {
-  /** Where this server redeems the token it was handed. */
-  gatewayUrl:
-    process.env.KEYDRIS_GATEWAY_URL ??
-    'http://localhost:8080/gateway/credentials',
+  /**
+   * Where this server redeems the token it was handed. No fallback: a default
+   * pointing anywhere would either bake someone's tenant URL into a public
+   * template or silently send live tokens over plaintext. Unset, the server
+   * still starts and lists its tools — every credentialed call refuses with a
+   * problem naming this variable.
+   */
+  gatewayUrl: process.env.KEYDRIS_GATEWAY_URL ?? '',
 
   /**
    * Legacy `/agent/authorize` header accepted as a fallback. `mcp_kit_reader`

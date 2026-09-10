@@ -49,9 +49,18 @@ type SpendContext = {
  * protocol failure the agent cannot read.
  */
 export function keydrisCredentials(
-  reader: KitReader,
+  /** `null` = no gateway configured: the server stays up, spends refuse. */
+  reader: KitReader | null,
 ): McpExactMiddlewareFn<'tools/call'> {
   return async (ctx, next) => {
+    if (!reader) {
+      ctx.set(KIT_SPEND_VAR, async () => ({
+        ok: false as const,
+        problem:
+          'The Keydris gateway URL is not configured: set KEYDRIS_GATEWAY_URL to your redemption endpoint.',
+      }));
+      return next();
+    }
     // The gateway recomputes the intent hash from the parameters we send and
     // compares it to the one minted from the wire, so the redemption must be
     // built from the wire-exact body — schema validation may have stripped or

@@ -17,11 +17,15 @@ const server = new MCPServer({
 });
 
 // One reader for the process: it holds no per-request state, only where to
-// redeem and which legacy header to fall back to.
-const reader = createKitReader({
-  gatewayUrl: config.gatewayUrl,
-  tokenHeader: config.tokenHeader,
-});
+// redeem and which legacy header to fall back to. With no gateway configured
+// the server still starts and lists its tools; the middleware refuses every
+// credentialed call with a problem naming the missing variable.
+const reader = config.gatewayUrl
+  ? createKitReader({
+      gatewayUrl: config.gatewayUrl,
+      tokenHeader: config.tokenHeader,
+    })
+  : null;
 
 // Arms each tools/call with a one-shot spend of its KIT action token —
 // initialize and tools/list never touch the gateway. Tools spend it at fetch

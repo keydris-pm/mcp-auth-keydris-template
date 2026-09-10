@@ -1,9 +1,10 @@
-// Vendored from @keydris/kit-reader v0.1.0 (keydris-reader/node/packages/kit-reader,
-// not yet on npm), then updated to the current keydris-api gateway contract:
-// KIT redemption now requires the downstream `target` (host, path, method)
+// Vendored from @keydris/kit-reader (keydris-reader/node/packages/kit-reader).
+// As of upstream v0.2.0 the library carries the same gateway contract as this
+// fork: KIT redemption requires the downstream `target` (host, path, method)
 // alongside the MCP action — see keydris-api packages/shared gateway.dto.ts.
-// The upstream package predates that change; ./token.ts and ./credentials.ts
-// remain verbatim. The mcp-use adapter in ./middleware.ts is local code.
+// ./token.ts and ./credentials.ts are verbatim; ./redeem.ts matches upstream.
+// The mcp-use adapter in ./middleware.ts is local code (upstream ships an
+// Express adapter with the same armed-spend pattern).
 
 /** Mirrors the gateway's `credentialEnvelopeSchema`. */
 export type CredentialEnvelope = {
@@ -64,8 +65,19 @@ export type TokenLookup = {
 };
 
 export type KitReaderOptions = {
-  /** The control plane's redemption endpoint, e.g. `https://api.keydris.com/gateway/credentials`. */
+  /**
+   * The control plane's redemption endpoint, e.g. `https://api.keydris.com/gateway/credentials`.
+   * Must be `https` unless the host is loopback: redemption posts a live token
+   * and receives a raw secret, and neither belongs on a plaintext network hop.
+   */
   gatewayUrl: string;
+
+  /**
+   * Permit a non-loopback `http` gateway URL. A lab-only escape hatch — a
+   * constructor option rather than an environment variable so the decision is
+   * visible in code review, not buried in deployment config.
+   */
+  allowInsecureGatewayUrl?: boolean;
 
   /**
    * Legacy `/agent/authorize` header accepted as a fallback, lowercased.
@@ -76,6 +88,13 @@ export type KitReaderOptions = {
 
   /** Injectable for tests and for servers that route egress through their own client. */
   fetch?: typeof globalThis.fetch;
+
+  /**
+   * Milliseconds to wait on the gateway before the redemption refuses with
+   * "could not be reached". Defaults to 10000, matching the Python reader's
+   * default transport timeout — a hung gateway must not hang the tool call.
+   */
+  timeoutMs?: number;
 };
 
 export type KitReader = {

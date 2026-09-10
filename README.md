@@ -92,7 +92,7 @@ Configure via `.env` (see `.env.example`):
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `KEYDRIS_GATEWAY_URL` | `https://dev.api.keydris.com/gateway/credentials` | Where this server redeems the KIT action token it was handed. |
+| `KEYDRIS_GATEWAY_URL` | _(required — no fallback)_ | Where this server redeems the KIT action token it was handed. Must be `https` unless loopback. Unset, the server starts and lists tools, but every credentialed call refuses with a problem naming this variable. |
 | `KEYDRIS_TOKEN_HEADER` | `authorization` | Legacy header accepted as a fallback; tokens normally arrive in MCP `params._meta`. |
 | `GITHUB_API_BASE` | `https://api.github.com` | Upstream API base for the `github-whoami` demo tool. |
 
